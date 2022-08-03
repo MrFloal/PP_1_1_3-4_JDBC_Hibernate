@@ -10,17 +10,18 @@ public class Util {
             "?verifyServerCertificate=false&serverTimezone=UTC";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
-    private Connection connection;
 
     public Util() {
-        try {
-            connection = DriverManager.getConnection(HOST, USERNAME, PASSWORD);
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            System.out.println("Не удалось установить соединение." + e);
-        }
+
     }
-    public Connection getConnection() {
+    public static Connection getConnection() {
+        Connection connection = null;
+        try {
+            connection =  DriverManager.getConnection(HOST, USERNAME, PASSWORD);
+        } catch (SQLException e) {
+            System.out.println("Не удалось установить соединение.");
+            e.printStackTrace();
+        }
         return connection;
     }
 }
