@@ -14,10 +14,12 @@ public class Util {
     public Util() {
 
     }
+
     public static Connection getConnection() {
         Connection connection = null;
         try {
-            connection =  DriverManager.getConnection(HOST, USERNAME, PASSWORD);
+            connection = DriverManager.getConnection(HOST, USERNAME, PASSWORD);
+            connection.setAutoCommit(false);
         } catch (SQLException e) {
             System.out.println("Не удалось установить соединение.");
             e.printStackTrace();

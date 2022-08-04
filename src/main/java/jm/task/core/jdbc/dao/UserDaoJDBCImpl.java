@@ -14,7 +14,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (Connection connection = new Util().getConnection();
+        try (Connection connection = Util.getConnection();
              Statement statement = connection.createStatement()) {
             String sql = """
                         CREATE TABLE user (
@@ -33,7 +33,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        try (Connection connection = new Util().getConnection();
+        try (Connection connection = Util.getConnection();
              Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TABLE IF EXISTS user");
         } catch (SQLException e) {
@@ -42,12 +42,14 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) throws SQLException {
+    public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO user (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
-        Connection copy = null;
-        try (Connection connection = new Util().getConnection();
-             PreparedStatement pStatement = connection.prepareStatement(sql)) {
-            copy = connection;
+        Connection connection = null;
+        PreparedStatement pStatement = null;
+        try {
+            connection = Util.getConnection();
+            pStatement = connection.prepareStatement(sql);
+
             pStatement.setString(1, name);
             pStatement.setString(2, lastName);
             pStatement.setByte(3, age);
@@ -56,30 +58,59 @@ public class UserDaoJDBCImpl implements UserDao {
             connection.commit();
             System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (SQLException e) {
-            System.out.println("Не удалось добавить User в таблицу. ");
+            System.out.println("Не удалось добавить User в таблицу.");
             e.printStackTrace();
-            copy.rollback();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось откатить изменения.");
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                if (pStatement != null) pStatement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось освободить ресурсы.");
+                ex.printStackTrace();
+            }
         }
     }
 
-    public void removeUserById(long id) throws SQLException {
-        Connection copy = null;
-        try (Connection connection = new Util().getConnection()) {
-            copy = connection;
-            String sql = "DELETE FROM user WHERE ID = ?";
-            PreparedStatement pStatement = connection.prepareStatement(sql);
+    public void removeUserById(long id) {
+        Connection connection = null;
+        PreparedStatement pStatement = null;
+        String sql = "DELETE FROM user WHERE ID = ?";
+
+        try {
+            connection = Util.getConnection();
+            pStatement = connection.prepareStatement(sql);
             pStatement.setLong(1, id);
             connection.commit();
         } catch (SQLException e) {
             System.out.println("Не удалось очистить таблицу. ");
             e.printStackTrace();
-            copy.rollback();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось откатить изменения.");
+                ex.printStackTrace();
+            }
+
+        } finally {
+            try {
+                if (pStatement != null) pStatement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось освободить ресурсы.");
+                ex.printStackTrace();
+            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> result = new ArrayList<>();
-        try (Connection connection = new Util().getConnection();
+        try (Connection connection = Util.getConnection();
              Statement statement = connection.createStatement()) {
             ResultSet res = statement.executeQuery("SELECT * FROM user");
             while (res.next()) {
@@ -99,17 +130,32 @@ public class UserDaoJDBCImpl implements UserDao {
         return result;
     }
 
-    public void cleanUsersTable() throws SQLException {
-        Connection copy = null;
-        try (Connection connection = new Util().getConnection();
-             Statement statement = connection.createStatement()) {
-            copy = connection;
+    public void cleanUsersTable() {
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            connection = Util.getConnection();
+            statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM user");
             connection.commit();
         } catch (SQLException e) {
             System.out.println("Не удалось очистить таблицу.");
             e.printStackTrace();
-            copy.rollback();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось откатить изменения.");
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException ex) {
+                System.out.println("Не удалось освободить ресурсы.");
+                ex.printStackTrace();
+            }
         }
     }
 }
