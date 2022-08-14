@@ -17,7 +17,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getConnection();
              Statement statement = connection.createStatement()) {
             String sql = """
-                        CREATE TABLE user (
+                        CREATE TABLE IF NOT EXISTS user (
                           `ID` INT NOT NULL AUTO_INCREMENT,
                           `NAME` VARCHAR(45) NULL,
                           `LASTNAME` VARCHAR(45) NULL,
@@ -27,7 +27,7 @@ public class UserDaoJDBCImpl implements UserDao {
                     """;
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            System.out.println("Не удалось создать таблицу. Возможно, она уже существует.");
+            System.out.println("Не удалось создать таблицу.");
             e.printStackTrace();
         }
     }
@@ -37,7 +37,7 @@ public class UserDaoJDBCImpl implements UserDao {
              Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TABLE IF EXISTS user");
         } catch (SQLException e) {
-            System.out.println("Не удалось выполнить удаление таблицы. Возможно, она уже удалена.");
+            System.out.println("Не удалось выполнить удаление таблицы.");
             e.printStackTrace();
         }
     }
