@@ -17,7 +17,6 @@ public class Main {
         // реализуйте алгоритм здесь
         UserService userService = new UserServiceImpl();
 
-        userService.dropUsersTable();
         userService.createUsersTable();
         userService.saveUser("name1", "lastname1", (byte) 10);
         userService.saveUser("name2", "lastname2", (byte) 20);
