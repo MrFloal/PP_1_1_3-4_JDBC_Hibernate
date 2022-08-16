@@ -86,6 +86,7 @@ public class UserDaoJDBCImpl implements UserDao {
             connection = Util.getConnection();
             pStatement = connection.prepareStatement(sql);
             pStatement.setLong(1, id);
+            pStatement.execute();
             connection.commit();
         } catch (SQLException e) {
             System.out.println("Не удалось очистить таблицу. ");
